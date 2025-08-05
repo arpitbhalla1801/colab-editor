@@ -50,7 +50,7 @@ function ReposList() {
       <ul>
         {repos.map((repo) => (
           <li key={repo.id}>
-            <a href={repo.html_url} target="_blank" rel="noopener noreferrer">
+            <a href={`/editor/${encodeURIComponent(repo.name)}`}>
               {repo.name}
             </a>
           </li>
