@@ -4,17 +4,24 @@ import { cn } from "../../lib/utils";
 import { IconBrandGithub } from "@tabler/icons-react";
 import { signIn } from "next-auth/react";
 
+import { useSearchParams } from "next/navigation";
+
 export default function SignupFormDemo() {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Form submitted");
   };
+  const searchParams = useSearchParams();
+  const error = searchParams.get("error");
   return (
     <div
       className="shadow-input mx-auto w-full max-w-md rounded-none bg-white p-4 md:rounded-2xl md:p-8 dark:bg-black">
       <h2 className="text-xl font-bold text-neutral-800 dark:text-neutral-200">
         Welcome to Colab-Editor
       </h2>
+      {error === "signin_failed" && (
+        <div className="mb-4 text-red-600">Sign-in failed. Please try again.</div>
+      )}
       <form className="my-8" onSubmit={handleSubmit}>
         {/* <div
           className="mb-4 flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2">
@@ -54,7 +61,7 @@ export default function SignupFormDemo() {
           <button
             className="group/btn shadow-input relative flex h-10 w-full items-center justify-center space-x-2 rounded-md bg-gray-50 px-4 font-medium text-black dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_#262626]"
             type="button"
-            onClick={() => signIn("github")}
+            onClick={() => signIn("github", { callbackUrl: "/new" })}
           >
             <IconBrandGithub className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
             <span className="text-sm text-neutral-700 dark:text-neutral-300">
