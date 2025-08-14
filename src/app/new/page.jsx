@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Provider from "../SessionProvider";
@@ -98,8 +99,10 @@ function ReposList() {
         </h1>
         <Select
           onValueChange={(repoName) => {
-            if (repoName) {
-              router.push(`/editor/${encodeURIComponent(repoName)}`);
+            if (repoName && session?.user?.login) {
+              const username = encodeURIComponent(session.user.login);
+              const uuid = uuidv4();
+              router.push(`/editor/${username}/${encodeURIComponent(repoName)}/${uuid}`);
             }
           }}
         >

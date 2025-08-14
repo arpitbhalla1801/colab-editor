@@ -12,14 +12,16 @@ export const authOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, account }) {
-      if (account) {
+    async jwt({ token, account, profile }) {
+      if (account && profile) {
         token.accessToken = account.access_token;
+        token.login = profile.login;
       }
       return token;
     },
     async session({ session, token }) {
       session.accessToken = token.accessToken;
+      if (token.login) session.user.login = token.login;
       return session;
     },
   },

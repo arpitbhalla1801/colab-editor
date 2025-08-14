@@ -1,12 +1,15 @@
+// This is the new dynamic route for the editor: /editor/:username/:repo/:uuid
+// You can move your existing logic from the previous dynamic route here.
+
 "use client";
 import dynamic from "next/dynamic";
 import { useState, use } from "react";
-import { FaCode, FaFolderOpen, FaGitAlt, FaSearch, FaAngleLeft, FaAngleRight } from "react-icons/fa";
+import { FaCode, FaFolderOpen, FaGitAlt, FaSearch } from "react-icons/fa";
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
 export default function EditorPage({ params }) {
-  const { repo_name: repoName } = use(params);
+  const { username, repo, uuid } = use(params);
   const [activeTab, setActiveTab] = useState("editor");
   const [fileContent, setFileContent] = useState("// Start editing your code here\n");
   const [openFile, setOpenFile] = useState(null);
@@ -15,10 +18,13 @@ export default function EditorPage({ params }) {
     setOpenFile(filename);
     if (filename === "README.md") {
       setFileContent("# README\n\nThis is the README file.");
-    } else if (filename === "src/app/editor/[repo_name]/page.jsx") {
+    } else if (filename === `src/app/editor/[username]/[repo]/[uuid]/page.jsx`) {
       setFileContent("// Editor page code\nimport React from 'react';");
     } else if (filename === "package.json") {
-      setFileContent('{\n  "name": "colab-editor",\n  "version": "1.0.0"\n}');
+      setFileContent(`{
+  "name": "colab-editor",
+  "version": "1.0.0"
+}`);
     } else {
       setFileContent("// File content for " + filename);
     }
@@ -76,7 +82,7 @@ export default function EditorPage({ params }) {
             <div style={{ fontWeight: "bold", marginBottom: 8 }}>Files</div>
             <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
               <FileItem filename="README.md" onOpen={handleOpenFile} />
-              <FileItem filename="src/app/editor/[repo_name]/page.jsx" onOpen={handleOpenFile} />
+              <FileItem filename={`src/app/editor/[username]/[repo]/[uuid]/page.jsx`} onOpen={handleOpenFile} />
               <FileItem filename="package.json" onOpen={handleOpenFile} />
               {/* Add more files here or fetch dynamically */}
             </ul>
@@ -86,7 +92,7 @@ export default function EditorPage({ params }) {
           <div style={{ width: 220, background: "#23272e", borderRight: "1px solid #333", color: "#ccc", padding: 12, overflowY: "auto" }}>
             <div style={{ fontWeight: "bold", marginBottom: 8 }}>Git Changes</div>
             <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-              <li style={{ padding: "6px 0", cursor: "pointer" }}>M src/app/editor/[repo_name]/page.jsx</li>
+              <li style={{ padding: "6px 0", cursor: "pointer" }}>M src/app/editor/[username]/[repo]/[uuid]/page.jsx</li>
               <li style={{ padding: "6px 0", cursor: "pointer" }}>A src/app/new/page.jsx</li>
               {/* Add more changes here or fetch dynamically */}
             </ul>
@@ -124,8 +130,6 @@ export default function EditorPage({ params }) {
     </div>
   );
 }
-
-
 
 function SidebarTabButton({ active, icon, ...props }) {
   return (
