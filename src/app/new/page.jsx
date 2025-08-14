@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Provider from "../SessionProvider";
+import dynamic from "next/dynamic";
 import {
   Select,
   SelectContent,
@@ -22,9 +23,13 @@ export default function NewPage() {
   );
 }
 
+const MultiStepLoaderScreen = dynamic(() => import("./MultiStepLoaderScreen"), { ssr: false });
+
 function ReposList() {
   const { data: session, status } = useSession();
   const [repos, setRepos] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [nextUrl, setNextUrl] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -45,6 +50,13 @@ function ReposList() {
   if (status === "loading") return <div>Loading...</div>;
   if (status === "unauthenticated")
     return <button onClick={() => signIn("github")}>Sign in with GitHub</button>;
+
+  if (loading) {
+    return <MultiStepLoaderScreen onComplete={() => {
+      setLoading(false);
+      router.push(nextUrl);
+    }} />;
+  }
 
   return (
     <div
@@ -102,7 +114,8 @@ function ReposList() {
             if (repoName && session?.user?.login) {
               const username = encodeURIComponent(session.user.login);
               const uuid = uuidv4();
-              router.push(`/editor/${username}/${encodeURIComponent(repoName)}/${uuid}`);
+              setNextUrl(`/editor/${username}/${encodeURIComponent(repoName)}/${uuid}`);
+              setLoading(true);
             }
           }}
         >
