@@ -6,71 +6,37 @@ import { signIn } from "next-auth/react";
 
 import { useSearchParams } from "next/navigation";
 
+
 export default function SignupFormDemo() {
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Form submitted");
-  };
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
   return (
-    <div
-      className="shadow-input mx-auto w-full max-w-md rounded-none bg-white p-4 md:rounded-2xl md:p-8 dark:bg-black">
-      <h2 className="text-xl font-bold text-neutral-800 dark:text-neutral-200">
-        Welcome to Colab-Editor
-      </h2>
-      {error === "signin_failed" && (
-        <div className="mb-4 text-red-600">Sign-in failed. Please try again.</div>
-      )}
-      <form className="my-8" onSubmit={handleSubmit}>
-        {/* <div
-          className="mb-4 flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2">
-          <LabelInputContainer>
-            <Label htmlFor="firstname">First name</Label>
-            <Input id="firstname" placeholder="Tyler" type="text" />
-          </LabelInputContainer>
-          <LabelInputContainer>
-            <Label htmlFor="lastname">Last name</Label>
-            <Input id="lastname" placeholder="Durden" type="text" />
-          </LabelInputContainer>
+    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-100 via-slate-200 to-slate-50 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900 transition-colors">
+      <div className="relative mx-auto w-full max-w-md rounded-2xl bg-white/90 dark:bg-zinc-900/90 p-8 shadow-xl flex flex-col items-center border border-slate-200 dark:border-zinc-800 transition-all duration-300 hover:shadow-2xl">
+        <div className="flex flex-col items-center mb-6">
+          <div className="bg-gradient-to-br from-cyan-400 to-indigo-500 rounded-full p-3 mb-2 shadow-md">
+            <IconBrandGithub className="h-7 w-7 text-white" />
+          </div>
+          <h2 className="text-2xl font-bold text-neutral-800 dark:text-neutral-100 tracking-tight">Welcome to Colab-Editor</h2>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">Sign in to continue</p>
         </div>
-        <LabelInputContainer className="mb-4">
-          <Label htmlFor="email">Email Address</Label>
-          <Input id="email" placeholder="projectmayhem@fc.com" type="email" />
-        </LabelInputContainer>
-        <LabelInputContainer className="mb-4">
-          <Label htmlFor="password">Password</Label>
-          <Input id="password" placeholder="••••••••" type="password" />
-        </LabelInputContainer>
-        <LabelInputContainer className="mb-8">
-          <Label htmlFor="twitterpassword">Your twitter password</Label>
-          <Input id="twitterpassword" placeholder="••••••••" type="twitterpassword" />
-        </LabelInputContainer> */}
-
-        {/* <button
-          className="group/btn relative block h-10 w-full rounded-md bg-gradient-to-br from-black to-neutral-600 font-medium text-white shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:bg-zinc-800 dark:from-zinc-900 dark:to-zinc-900 dark:shadow-[0px_1px_0px_0px_#27272a_inset,0px_-1px_0px_0px_#27272a_inset]"
-          type="submit">
-          Sign up &rarr;
-          <BottomGradient />
-        </button> */}
-
-        {/* <div
-          className="my-8 h-[1px] w-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700" /> */}
-
-        <div className="flex flex-col items-center justify-center space-y-4">
-          <button
-            className="group/btn shadow-input relative flex h-10 w-full items-center justify-center space-x-2 rounded-md bg-gray-50 px-4 font-medium text-black dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_#262626]"
-            type="button"
-            onClick={() => signIn("github", { callbackUrl: "/new" })}
-          >
-            <IconBrandGithub className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
-            <span className="text-sm text-neutral-700 dark:text-neutral-300">
-              Login with GitHub
-            </span>
-            <BottomGradient />
-          </button>
-        </div>
-      </form>
+        {error === "signin_failed" && (
+          <div className="mb-4 text-red-600 text-center w-full">Sign-in failed. Please try again.</div>
+        )}
+        <form className="w-full" onSubmit={e => e.preventDefault()}>
+          <div className="flex flex-col items-center justify-center space-y-4">
+            <button
+              className="group/btn relative flex h-11 w-full items-center justify-center space-x-2 rounded-lg bg-gradient-to-br from-black to-neutral-700 font-medium text-white shadow-lg hover:scale-[1.02] transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-400 dark:bg-zinc-800 dark:from-zinc-900 dark:to-zinc-900 dark:shadow-[0px_0px_1px_1px_#262626]"
+              type="button"
+              onClick={() => signIn('github', { callbackUrl: '/new' })}
+            >
+              <IconBrandGithub className="h-5 w-5 text-white" />
+              <span className="text-base text-white">Login with GitHub</span>
+              <BottomGradient />
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
