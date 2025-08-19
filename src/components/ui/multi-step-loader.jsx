@@ -87,7 +87,7 @@ export const MultiStepLoader = ({
 
   useEffect(() => {
     if (!loading) {
-      setCurrentState(0);
+      // Do not reset currentState to 0 on loading end to prevent jump to first step
       return;
     }
     const timeout = setTimeout(() => {

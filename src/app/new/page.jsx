@@ -30,6 +30,8 @@ function ReposList() {
   const [repos, setRepos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [nextUrl, setNextUrl] = useState("");
+  const [selectedRepo, setSelectedRepo] = useState(null);
+  const [selectedUsername, setSelectedUsername] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -51,9 +53,8 @@ function ReposList() {
   if (status === "unauthenticated")
     return <button onClick={() => signIn("github")}>Sign in with GitHub</button>;
 
-  if (loading) {
-    return <MultiStepLoaderScreen onComplete={() => {
-      setLoading(false);
+  if (loading && selectedRepo && selectedUsername) {
+    return <MultiStepLoaderScreen username={selectedUsername} repo={selectedRepo} onComplete={() => {
       router.push(nextUrl);
     }} />;
   }
@@ -115,6 +116,8 @@ function ReposList() {
               const username = encodeURIComponent(session.user.login);
               const uuid = uuidv4();
               setNextUrl(`/editor/${username}/${encodeURIComponent(repoName)}/${uuid}`);
+              setSelectedRepo(repoName);
+              setSelectedUsername(username);
               setLoading(true);
             }
           }}
