@@ -138,13 +138,16 @@ export default function EditorPage({ params }) {
     <div style={{ height: "100vh", display: "flex", flexDirection: "row", background: "#1e1e1e" }}>
       <div style={{
         width: 56,
-        background: "#23272e",
-        borderRight: "1px solid #333",
+        minWidth: 56,
+        maxWidth: 56,
+        background: "#181c20",
+        borderRight: "1px solid #444",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         minHeight: "100vh",
-        paddingTop: 16
+        paddingTop: 16,
+        boxSizing: "border-box"
       }}>
         <SidebarTabButton
           active={activeTab === "files"}
@@ -164,12 +167,12 @@ export default function EditorPage({ params }) {
       </div>
       <div style={{ flex: 1, minHeight: 0, background: "#1e1e1e", padding: 0, display: "flex", flexDirection: "row" }}>
         {activeTab === "files" && (
-          <div style={{ width: 260, background: "#23272e", borderRight: "1px solid #333", color: "#ccc", padding: 12, overflowY: "auto" }}>
-            <div style={{ fontWeight: "bold", marginBottom: 8 }}>Files</div>
-            {loadingFiles && <div>Loading files...</div>}
+          <div style={{ width: 260, minWidth: 260, maxWidth: 260, background: "#181c20", borderRight: "1px solid #444", color: "#f3f4f6", padding: 12, overflowY: "auto", boxSizing: "border-box" }}>
+            <div style={{ fontWeight: "bold", marginBottom: 8, color: "#fff" }}>Files</div>
+            {loadingFiles && <div style={{ color: '#b3b3b3' }}>Loading files...</div>}
             {!loadingFiles && fileTree && (
               <Tree
-                className="overflow-hidden rounded-md bg-background p-2"
+                className="overflow-hidden rounded-md bg-[#23272e] p-2 text-[#f3f4f6] border border-[#333]"
                 elements={fileTreeToElements(fileTree).flatMap(e => e.children || [])}
                 initialExpandedItems={[]}
                 initialSelectedId={null}
@@ -177,7 +180,7 @@ export default function EditorPage({ params }) {
                 {fileTreeToElements(fileTree).flatMap(e => (e.children || [])).map(child => renderMagicTree(child, handleOpenFile))}
               </Tree>
             )}
-            {!loadingFiles && !fileTree && <div>Could not load files.</div>}
+            {!loadingFiles && !fileTree && <div style={{ color: '#b3b3b3' }}>Could not load files.</div>}
           </div>
         )}
 
