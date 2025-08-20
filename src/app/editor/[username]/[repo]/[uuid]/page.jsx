@@ -39,7 +39,8 @@ export default function EditorPage({ params }) {
   }
 
   async function handleOpenFile(filepath) {
-    setOpenFile(filepath);
+    setOpenFile(filepath); // Ensure file viewer opens
+    setSelectedChange(null); // Close any active diff view
     // Find the file in the tree
     if (fileTree) {
       const fileNode = findFileNode(fileTree, filepath);
@@ -148,8 +149,13 @@ export default function EditorPage({ params }) {
 
   function handleOpenChange(filepath) {
     setSelectedChange(filepath);
-    // keep the Git tab active
+    setOpenFile(null); // Close the file viewer when opening a diff
     setActiveTab("git");
+  }
+
+  function handleCloseDiffView() {
+    setSelectedChange(null);
+    setActiveTab("files"); // Switch back to files tab
   }
 
   // inject CSS for diff line decorations once
@@ -269,34 +275,77 @@ export default function EditorPage({ params }) {
         )}
 
         {activeTab === "git" && (
-          <div style={{ width: 320, minWidth: 320, maxWidth: 320, background: "#181c20", borderRight: "1px solid #444", color: "#f3f4f6", padding: 12, overflowY: "auto", boxSizing: "border-box" }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-              <div style={{ fontWeight: "bold", color: '#fff' }}>Git Changes</div>
-            </div>
-            {changedFiles.length === 0 && <div style={{ color: '#888', padding: '6px 0' }}>No changes</div>}
-            {changedFiles.length > 0 && (
-              <Tree
-                className="overflow-hidden rounded-md bg-[#23272e] p-2 text-[#f3f4f6] border border-[#333]"
-                elements={fileTreeToElements(buildChangedTree(changedFiles)).flatMap(e => e.children || [])}
-                initialExpandedItems={[]}
-                initialSelectedId={null}
-              >
-                {fileTreeToElements(buildChangedTree(changedFiles)).flatMap(e => (e.children || [])).map(child => (
-                  // reuse renderMagicTree but wire clicks to open change diff
-                  child.children && child.children.length > 0
-                    ? renderMagicTree(child, handleOpenChange)
-                    : (
-                      <File key={child.id} value={child.id} onClick={() => handleOpenChange(child.path)}>
-                        <p style={{ color: child.status === 'added' ? '#4ade80' : child.status === 'modified' ? '#facc15' : '#f87171' }}>{child.name}</p>
-                      </File>
-                    )
+          <div style={{ display: 'flex', flexDirection: 'row', height: '100%', background: '#1e1e1e' }}>
+            {/* File List */}
+            <div style={{ width: '60%', maxWidth: '60%', borderRight: '1px solid #333', overflowY: 'auto', background: '#181c20', color: '#f3f4f6', padding: '16px' }}>
+              <div style={{ paddingBottom: '12px', fontWeight: 'bold', borderBottom: '1px solid #333', color: '#fff' }}>Changed Files</div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {changedFiles.map(file => (
+                  <li
+                    key={file.path}
+                    style={{
+                      padding: '12px 16px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      borderBottom: '1px solid #333',
+                      color: '#ccc',
+                      background: selectedChange === file.path ? '#23272e' : 'transparent',
+                    }}
+                    onClick={() => setSelectedChange(file.path)}
+                    title={file.path} // Show full path on hover
+                  >
+                    <span style={{ display: 'flex', alignItems: 'center' }}>
+                      {file.status === 'added' && <span style={{ color: '#4ade80', marginRight: '8px' }}>A</span>}
+                      {file.status === 'modified' && <span style={{ color: '#facc15', marginRight: '8px' }}>M</span>}
+                      {file.status === 'deleted' && <span style={{ color: '#f87171', marginRight: '8px' }}>D</span>}
+                      {file.path.split('/').pop()} // Show only the file name
+                    </span>
+                    {file.status !== 'added' && (
+                      <button
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          color: '#f87171',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                        }}
+                        onClick={() => handleRevertChange(file.path)}
+                      >
+                        Revert
+                      </button>
+                    )}
+                  </li>
                 ))}
-              </Tree>
-            )}
+              </ul>
+            </div>
+
+            {/* Diff View */}
+            <div style={{ flex: 1, maxWidth: '40%', padding: '16px', background: '#1e1e1e', color: '#f3f4f6' }}>
+              {selectedChange ? (
+                <MonacoDiffEditor
+                  height="100%"
+                  language="javascript"
+                  original={originalFiles[selectedChange] || ''}
+                  modified={editedFiles[selectedChange] || ''}
+                  options={{
+                    renderSideBySide: true,
+                    glyphMargin: true,
+                    renderIndicators: true,
+                    lineNumbers: 'on',
+                    minimap: { enabled: false },
+                  }}
+                  theme="vs-dark"
+                />
+              ) : (
+                <div style={{ color: '#ccc', padding: '16px', textAlign: 'center' }}>Select a file to view changes</div>
+              )}
+            </div>
           </div>
         )}
         <div style={{ flex: 1, minHeight: 0, background: "#1e1e1e", padding: 0 }}>
-          {(activeTab === "editor" || openFile) && (
+          {(activeTab === "editor" || (activeTab === "files" && openFile)) && !selectedChange && (
             <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
               {openFile && (
                 <div style={{ color: "#ccc", background: "#23272e", padding: "8px 16px", borderBottom: "1px solid #333" }}>
@@ -309,7 +358,7 @@ export default function EditorPage({ params }) {
                 value={fileContent}
                 onChange={(val) => {
                   setFileContent(val);
-                  if (openFile) setEditedFiles(prev => ({ ...prev, [openFile]: val }));
+                  if (openFile) setEditedFiles((prev) => ({ ...prev, [openFile]: val }));
                 }}
                 theme="vs-dark"
                 options={{
