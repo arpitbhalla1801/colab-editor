@@ -3,11 +3,13 @@ import dynamic from "next/dynamic";
 import { useState, useEffect, useRef } from "react";
 import { FaFolderOpen, FaGitAlt, FaSearch } from "react-icons/fa";
 import { File, Folder, Tree } from "../../../../../components/magicui/file-tree";
+import React from "react";
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 const MonacoDiffEditor = dynamic(() => import("@monaco-editor/react").then(mod => mod.DiffEditor), { ssr: false });
 
-export default function EditorPage({ params }) {
+export default function EditorPage({ params: paramsPromise }) {
+  const params = React.use(paramsPromise);
   const { username, repo, uuid } = params;
   const [activeTab, setActiveTab] = useState("files");
   const [fileContent, setFileContent] = useState("// Start editing your code here\n");
@@ -156,6 +158,17 @@ export default function EditorPage({ params }) {
   function handleCloseDiffView() {
     setSelectedChange(null);
     setActiveTab("files"); // Switch back to files tab
+  }
+
+  function handleRevertChange(filePath) {
+    // Logic to revert changes for the given file
+    setEditedFiles(prev => {
+      const updated = { ...prev };
+      delete updated[filePath];
+      return updated;
+    });
+    setChangedFiles(prev => prev.filter(file => file.path !== filePath)); // Remove file from changedFiles
+    setSelectedChange(null); // Close the diff view
   }
 
   // inject CSS for diff line decorations once
