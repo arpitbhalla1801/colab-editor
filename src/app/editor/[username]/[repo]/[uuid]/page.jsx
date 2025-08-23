@@ -307,28 +307,14 @@ export default function EditorPage({ params: paramsPromise }) {
                       background: selectedChange === file.path ? '#23272e' : 'transparent',
                     }}
                     onClick={() => setSelectedChange(file.path)}
-                    title={file.path} // Show full path on hover
+                    title={file.path}
                   >
                     <span style={{ display: 'flex', alignItems: 'center' }}>
                       {file.status === 'added' && <span style={{ color: '#4ade80', marginRight: '8px' }}>A</span>}
                       {file.status === 'modified' && <span style={{ color: '#facc15', marginRight: '8px' }}>M</span>}
                       {file.status === 'deleted' && <span style={{ color: '#f87171', marginRight: '8px' }}>D</span>}
-                      {file.path.split('/').pop()} // Show only the file name
+                      {file.path.split('/').pop()}
                     </span>
-                    {file.status !== 'added' && (
-                      <button
-                        style={{
-                          background: 'transparent',
-                          border: 'none',
-                          color: '#f87171',
-                          cursor: 'pointer',
-                          fontSize: '14px',
-                        }}
-                        onClick={() => handleRevertChange(file.path)}
-                      >
-                        Revert
-                      </button>
-                    )}
                   </li>
                 ))}
               </ul>
@@ -337,20 +323,38 @@ export default function EditorPage({ params: paramsPromise }) {
             {/* Diff View */}
             <div style={{ flex: 1, maxWidth: '40%', padding: '16px', background: '#1e1e1e', color: '#f3f4f6' }}>
               {selectedChange ? (
-                <MonacoDiffEditor
-                  height="100%"
-                  language="javascript"
-                  original={originalFiles[selectedChange] || ''}
-                  modified={editedFiles[selectedChange] || ''}
-                  options={{
-                    renderSideBySide: true,
-                    glyphMargin: true,
-                    renderIndicators: true,
-                    lineNumbers: 'on',
-                    minimap: { enabled: false },
-                  }}
-                  theme="vs-dark"
-                />
+                <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
+                    <button
+                      style={{
+                        background: 'transparent',
+                        border: '1px solid #f87171',
+                        color: '#f87171',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        borderRadius: '4px',
+                        padding: '4px 12px',
+                      }}
+                      onClick={() => handleRevertChange(selectedChange)}
+                    >
+                      Revert
+                    </button>
+                  </div>
+                  <MonacoDiffEditor
+                    height="100%"
+                    language="javascript"
+                    original={originalFiles[selectedChange] || ''}
+                    modified={editedFiles[selectedChange] || ''}
+                    options={{
+                      renderSideBySide: true,
+                      glyphMargin: true,
+                      renderIndicators: true,
+                      lineNumbers: 'on',
+                      minimap: { enabled: false },
+                    }}
+                    theme="vs-dark"
+                  />
+                </div>
               ) : (
                 <div style={{ color: '#ccc', padding: '16px', textAlign: 'center' }}>Select a file to view changes</div>
               )}
